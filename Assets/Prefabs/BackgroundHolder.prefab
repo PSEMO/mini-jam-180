@@ -48,7 +48,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Player: {fileID: 0}
-  backgroundHeight: 10
+  backgroundHeight: 30
 --- !u!1 &2108716420479863364
 GameObject:
   m_ObjectHideFlags: 0
