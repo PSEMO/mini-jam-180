@@ -12,7 +12,7 @@ public class PlayerManager : MonoBehaviour
     [SerializeField] Image EnergyValueImg;
 
     [SerializeField] float MaxEnergy = 100;
-    [SerializeField] float Energy = 100;
+    public float Energy = 100;
     [SerializeField] float EnergyLoseMult = 1;
     [SerializeField] float EnergyGainRefresher = 10;
     [SerializeField] float EnergyLoseEnemy = 10;
@@ -78,10 +78,12 @@ public class PlayerManager : MonoBehaviour
             if(Energy > EnergyNeededToWin)
             {
                 GameWonObj.SetActive(true);
+                Time.timeScale = 0;
             }
             else
             {
                 GameOverNotEnoughEnergyObj.SetActive(true);
+                Time.timeScale = 0;
             }
         }
     }

@@ -10,7 +10,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{81687870-DF5E-022E-B64D-A4D00EB251DA}</ProjectGuid>
+    <ProjectGuid>{3CD3BAB4-AE69-5491-4D14-BC126014A2A0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -67,6 +67,7 @@
     <Compile Include="Assets\Scripts\backgroundController.cs" />
     <Compile Include="Assets\Scripts\DocumentationForComponents.cs" />
     <Compile Include="Assets\Scripts\MoveForEnemy.cs" />
+    <Compile Include="Assets\Scripts\DontDestroy.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
   </ItemGroup>
   <ItemGroup>

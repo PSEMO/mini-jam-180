@@ -5,11 +5,17 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] float Speed = 10;
     [SerializeField] float jump = 7;
+
+    [SerializeField] float MinimumEnergyForJumping = 10;
+    bool CanDoubleJump = true;
+
     [SerializeField] float colliderDisableTimeForDropping = 0.25f;
     Rigidbody2D rb;
 
     [SerializeField] LayerMask GroundLayer;
     [SerializeField] Transform FeetPoint;
+
+    PlayerManager playerManager;
 
     bool isRightLooking = true;
     bool isOnPlatform = false;
@@ -23,6 +29,7 @@ public class PlayerController : MonoBehaviour
         //animator = GetComponent<//animator>();
         rb = GetComponent<Rigidbody2D>();
         playerCollider = GetComponent<BoxCollider2D>();
+        playerManager = GetComponent<PlayerManager>();
     }
 
     void Update()
@@ -35,13 +42,13 @@ public class PlayerController : MonoBehaviour
         bool Left = Input.GetKey(KeyCode.A) ||
             Input.GetKey(KeyCode.LeftArrow);
 
-        bool Up = Input.GetKey(KeyCode.W) ||
-            Input.GetKey(KeyCode.UpArrow) ||
-            Input.GetKey(KeyCode.Space);
+        bool Up = Input.GetKeyDown(KeyCode.W) ||
+            Input.GetKeyDown(KeyCode.UpArrow) ||
+            Input.GetKeyDown(KeyCode.Space);
 
-        bool Down = Input.GetKey(KeyCode.S) ||
-            Input.GetKey(KeyCode.DownArrow) ||
-            Input.GetKey(KeyCode.LeftCommand);
+        bool Down = Input.GetKeyDown(KeyCode.S) ||
+            Input.GetKeyDown(KeyCode.DownArrow) ||
+            Input.GetKeyDown(KeyCode.LeftCommand);
         #endregion
 
         #region Basic movement
@@ -84,9 +91,18 @@ public class PlayerController : MonoBehaviour
 
         if (Up)
         {
+            Debug.Log(playerManager.Energy);
+            Debug.Log(MinimumEnergyForJumping);
+            Debug.Log(CanDoubleJump);
             if (CheckGround())
             {
                 Jump();
+                CanDoubleJump = true;
+            }
+            else if (CanDoubleJump && playerManager.Energy > MinimumEnergyForJumping)
+            {
+                Jump();
+                CanDoubleJump = false;
             }
         }
         else if (Down)
