@@ -5,28 +5,36 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] float Speed = 10;
     [SerializeField] float jump = 7;
+
+    [SerializeField] float MinimumEnergyForJumping = 10;
+    bool CanDoubleJump = true;
+
     [SerializeField] float colliderDisableTimeForDropping = 0.25f;
     Rigidbody2D rb;
 
     [SerializeField] LayerMask GroundLayer;
     [SerializeField] Transform FeetPoint;
 
+    PlayerManager playerManager;
+
     bool isRightLooking = true;
     bool isOnPlatform = false;
 
     BoxCollider2D playerCollider;
 
-    //animator //animator;
+    Animator animator;
 
     void Start()
     {
-        //animator = GetComponent<//animator>();
+        animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         playerCollider = GetComponent<BoxCollider2D>();
+        playerManager = GetComponent<PlayerManager>();
     }
 
     void Update()
     {
+
         #region Taking inputs for basic movement
 
         bool Right = Input.GetKey(KeyCode.D) ||
@@ -35,65 +43,78 @@ public class PlayerController : MonoBehaviour
         bool Left = Input.GetKey(KeyCode.A) ||
             Input.GetKey(KeyCode.LeftArrow);
 
-        bool Up = Input.GetKey(KeyCode.W) ||
-            Input.GetKey(KeyCode.UpArrow) ||
-            Input.GetKey(KeyCode.Space);
+        bool Up = Input.GetKeyDown(KeyCode.W) ||
+            Input.GetKeyDown(KeyCode.UpArrow) ||
+            Input.GetKeyDown(KeyCode.Space);
 
         bool Down = Input.GetKey(KeyCode.S) ||
             Input.GetKey(KeyCode.DownArrow) ||
-            Input.GetKey(KeyCode.LeftCommand);
+            Input.GetKey(KeyCode.RightShift) ||
+            Input.GetKey(KeyCode.LeftShift);
         #endregion
 
         #region Basic movement
 
-        if (Right)
+        if (!playerManager.cantMove)
         {
-            if (!Left)
+            if (Right)
             {
-                rb.linearVelocity = new Vector3(Speed, rb.linearVelocity.y, 0);
-                //animator.SetBool("isRunning", true);
-
-                if (!isRightLooking)
+                if (!Left)
                 {
-                    isRightLooking = true;
+                    rb.linearVelocity = new Vector3(Speed, rb.linearVelocity.y, 0);
+                    animator.SetBool("isWalking", true);
+
+                    if (!isRightLooking)
+                    {
+                        isRightLooking = true;
+                        Turn();
+                    }
+                }
+                else
+                {
+                    rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+                    animator.SetBool("isWalking", false);
+                }
+            }
+            else if (Left)
+            {
+                rb.linearVelocity = new Vector3(-Speed, rb.linearVelocity.y, 0);
+                animator.SetBool("isWalking", true);
+
+                if (isRightLooking)
+                {
+                    isRightLooking = false;
                     Turn();
                 }
             }
             else
             {
                 rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
-                //animator.SetBool("isRunning", false);
+                animator.SetBool("isWalking", false);
             }
-        }
-        else if (Left)
-        {
-            rb.linearVelocity = new Vector3(-Speed, rb.linearVelocity.y, 0);
-            //animator.SetBool("isRunning", true);
 
-            if (isRightLooking)
+            if (Up)
             {
-                isRightLooking = false;
-                Turn();
+                Debug.Log(0);
+                Debug.Log(CheckGround());
+                if (CheckGround())
+                {
+                    Debug.Log(1);
+                    Jump();
+                    CanDoubleJump = true;
+                }
+                else if (CanDoubleJump && playerManager.Energy > MinimumEnergyForJumping)
+                {
+                    Jump();
+                    CanDoubleJump = false;
+                }
             }
-        }
-        else
-        {
-            rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
-            //animator.SetBool("isRunning", false);
-        }
-
-        if (Up)
-        {
-            if (CheckGround())
+            else if (Down)
             {
-                Jump();
-            }
-        }
-        else if (Down)
-        {
-            if(CheckGround() && isOnPlatform && playerCollider.enabled)
-            {
-                StartCoroutine(DisablePlayerCollider(colliderDisableTimeForDropping));
+                if (CheckGround() && isOnPlatform && playerCollider.enabled)
+                {
+                    StartCoroutine(DisablePlayerCollider(colliderDisableTimeForDropping));
+                }
             }
         }
         #endregion
@@ -109,7 +130,7 @@ public class PlayerController : MonoBehaviour
     public void Jump()
     {
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, jump, 0);
-        //animator.SetBool("isJumping", true);
+        animator.SetBool("isJumping", true);
     }
 
     bool CheckGround()
@@ -143,18 +164,20 @@ public class PlayerController : MonoBehaviour
 
     private void OnDisable()
     {
-        //animator.SetBool("isJumping", false);
-        //animator.SetBool("isRunning", false);
+        animator.SetBool("isJumping", false);
+        animator.SetBool("isWalking", false);
+        animator.SetBool("isLosing", false);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (CheckGround())
         {
-            //animator.SetBool("isJumping", false);
+            animator.SetBool("isJumping", false);
         }
         if(collision.gameObject.CompareTag("Platform"))
         {
+            animator.SetBool("isJumping", false);
             isOnPlatform = true;
         }
     }

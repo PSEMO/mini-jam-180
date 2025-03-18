@@ -12,7 +12,7 @@ public class PlayerManager : MonoBehaviour
     [SerializeField] Image EnergyValueImg;
 
     [SerializeField] float MaxEnergy = 100;
-    [SerializeField] float Energy = 100;
+    public float Energy = 100;
     [SerializeField] float EnergyLoseMult = 1;
     [SerializeField] float EnergyGainRefresher = 10;
     [SerializeField] float EnergyLoseEnemy = 10;
@@ -24,11 +24,23 @@ public class PlayerManager : MonoBehaviour
     SpriteRenderer SpriteRenderer;
     Color DefaultColor;
 
+    Animator animator;
+
+    public bool cantMove = false;
+
+    Rigidbody2D rb;
+
     void Start()
     {
         Time.timeScale = 1.0f;
+        rb = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
         SpriteRenderer = GetComponent<SpriteRenderer>();
         DefaultColor = SpriteRenderer.color;
+
+        animator.SetBool("isLosing", false);
+        cantMove = false;
+        rb.gravityScale = 2;
     }
 
     void Update()
@@ -78,10 +90,12 @@ public class PlayerManager : MonoBehaviour
             if(Energy > EnergyNeededToWin)
             {
                 GameWonObj.SetActive(true);
+                Time.timeScale = 0;
             }
             else
             {
                 GameOverNotEnoughEnergyObj.SetActive(true);
+                Time.timeScale = 0;
             }
         }
     }
@@ -93,7 +107,10 @@ public class PlayerManager : MonoBehaviour
         if (Energy < 0)
         {
             GameOverDiedObj.SetActive(true);
-            Time.timeScale = 0;
+            animator.SetBool("isLosing", true);
+            cantMove = true;
+            rb.linearVelocity = Vector3.zero;
+            rb.gravityScale = 1;
         }
         else if (Energy > MaxEnergy)
         {
